@@ -6,6 +6,8 @@ let socket;
 const Chat = ({location}) => {
     const [name, setName] = useState('');
     const [room, setRoom] = useState('');
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
     const ENDPOINT = 'localhost:5000';
     useEffect(() => {
         const {name, room} = queryString.parse(location.search);
@@ -20,9 +22,28 @@ const Chat = ({location}) => {
             socket.emit('disconnect');
             socket.off();
         }
-    }, [ENDPOINT,location.search])
+    }, [ENDPOINT,location.search]);
+    useEffect(()=> {
+        socket.on('message',(message)=> {
+            setMessages([...messages, message]);
+        })
+    }, [message])
+    const sendMessage = (event) => {
+        // Prevent default behavior of refreshing the page 
+        event.preventDefault();
+        if(message) {
+            // Erase messages on callback function after sending messages
+            socket.emit('sendMessage', message, () => setMessage(''));
+        }
+        console.log(message, messages);
+    }
     return (
-        <h1>Chat</h1>
+        <div className="outerContainer">
+            <div className="container">
+                <input value= {message} onChange={(event) => setMessage(event.target.value)}
+                onKeyPress={event => event.key === 'Enter'? sendMessage(event): null}/>
+            </div>
+        </div>
     )
 }
 export default Chat;
