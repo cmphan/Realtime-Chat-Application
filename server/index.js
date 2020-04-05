@@ -9,7 +9,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 io.on('connection',(socket)=>{
     console.log('we have a new connection');
-    socket.on('join', ({name, room}, callback) => {
+    socket.on('join', ({name, room}) => {
         const {error, user} = addUser({id: socket.id, name, room});
         // get out the the function because of the return statement
         // if(error) return callback(error);
